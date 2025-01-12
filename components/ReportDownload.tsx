@@ -3,83 +3,112 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
 interface ReportDownloadProps {
+  customerAddress: string;
   currentVentilation: any[];
+  intakeCompliance: number | null;
+  exhaustCompliance: number | null;
   proposedVentilation: any[];
-  currentExhaustCompliance: number;
-  currentIntakeCompliance: number;
-  proposedExhaustCompliance: number;
-  proposedIntakeCompliance: number;
+  proposedIntakeCompliance: number | null;
+  proposedExhaustCompliance: number | null;
+  requiredNFA: number | null;
+  intakeNFA: number | null;
+  exhaustNFA: number | null;
+  proposedIntakeNFA: number | null;
+  proposedExhaustNFA: number | null;
 }
 
 const ReportDownload: React.FC<ReportDownloadProps> = ({
+  customerAddress,
   currentVentilation,
+  intakeCompliance,
+  exhaustCompliance,
   proposedVentilation,
-  currentExhaustCompliance,
-  currentIntakeCompliance,
-  proposedExhaustCompliance,
   proposedIntakeCompliance,
+  proposedExhaustCompliance,
+  requiredNFA,
+  intakeNFA,
+  exhaustNFA,
+  proposedIntakeNFA,
+  proposedExhaustNFA,
 }) => {
+  const getStatusColor = (compliance: number) => (compliance >= 100 ? '#28a745' : '#dc3545');
+  const getStatusText = (compliance: number) => (compliance >= 100 ? 'Pass' : 'Fail');
+
   const generatePDF = () => {
     const doc = new jsPDF();
 
-    // Add header
+    // Title
     doc.setFontSize(18);
-    doc.text('Ready Roof Ventilation Check Scorecard', 14, 20);
+    doc.text('Ready Roof VentCheck Scorecard', 105, 15, { align: 'center' });
 
-    // Add a line break
-    doc.setLineWidth(0.5);
-    doc.line(14, 25, 196, 25);
+    // Add spacing after title (3 line breaks)
+    let yPosition = 45;
 
-    // Current Ventilation Plan
+    // Customer Address
+    if (customerAddress) {
+      doc.setFontSize(12);
+      doc.text(`Customer Address: ${customerAddress}`, 10, yPosition);
+      yPosition += 10;
+    }
+
+    // Current Ventilation System
     doc.setFontSize(14);
-    doc.text('Current Ventilation System:', 14, 35);
-
+    doc.setFont('helvetica', 'bold');
+    doc.text('Current Ventilation System', 10, yPosition + 15);
+    doc.setFont('helvetica', 'normal');
     doc.autoTable({
-      startY: 40,
+      startY: yPosition + 20,
       head: [['Vent Type', 'Quantity']],
       body: currentVentilation.map((vent) => [vent.ventType, vent.quantity]),
-      theme: 'grid',
     });
+    doc.text(`Required NFA: ${requiredNFA?.toFixed(2)} square inches`, 10, doc.lastAutoTable.finalY + 10);
+    doc.text(`Current Exhaust NFA: ${exhaustNFA?.toFixed(2)} square inches`, 10, doc.lastAutoTable.finalY + 20);
+    doc.text(`Current Intake NFA: ${intakeNFA?.toFixed(2)} square inches`, 10, doc.lastAutoTable.finalY + 30);
+    doc.setTextColor(getStatusColor(exhaustCompliance || 0));
+    doc.text(`Exhaust Compliance: ${exhaustCompliance?.toFixed(2)}% (${getStatusText(exhaustCompliance || 0)})`, 10, doc.lastAutoTable.finalY + 40);
+    doc.setTextColor(getStatusColor(intakeCompliance || 0));
+    doc.text(`Intake Compliance: ${intakeCompliance?.toFixed(2)}% (${getStatusText(intakeCompliance || 0)})`, 10, doc.lastAutoTable.finalY + 50);
 
-    doc.text(`Exhaust Compliance: ${currentExhaustCompliance}% (${getStatusText(currentExhaustCompliance)})`, 14, doc.lastAutoTable.finalY + 10);
-    doc.text(`Intake Compliance: ${currentIntakeCompliance}% (${getStatusText(currentIntakeCompliance)})`, 14, doc.lastAutoTable.finalY + 20);
-
-    // Proposed Ventilation Plan
-    doc.text('Proposed Ventilation System:', 14, doc.lastAutoTable.finalY + 40);
-
+    // Proposed Ventilation System
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Proposed Ventilation System', 10, doc.lastAutoTable.finalY + 65);
+    doc.setFont('helvetica', 'normal');
     doc.autoTable({
-      startY: doc.lastAutoTable.finalY + 45,
+      startY: doc.lastAutoTable.finalY + 70,
       head: [['Vent Type', 'Quantity']],
       body: proposedVentilation.map((vent) => [vent.ventType, vent.quantity]),
-      theme: 'grid',
     });
+    doc.text(`Proposed Exhaust NFA: ${proposedExhaustNFA?.toFixed(2)} square inches`, 10, doc.lastAutoTable.finalY + 10);
+    doc.text(`Proposed Intake NFA: ${proposedIntakeNFA?.toFixed(2)} square inches`, 10, doc.lastAutoTable.finalY + 20);
+    doc.setTextColor(getStatusColor(proposedExhaustCompliance || 0));
+    doc.text(`Proposed Exhaust Compliance: ${proposedExhaustCompliance?.toFixed(2)}% (${getStatusText(proposedExhaustCompliance || 0)})`, 10, doc.lastAutoTable.finalY + 30);
+    doc.setTextColor(getStatusColor(proposedIntakeCompliance || 0));
+    doc.text(`Proposed Intake Compliance: ${proposedIntakeCompliance?.toFixed(2)}% (${getStatusText(proposedIntakeCompliance || 0)})`, 10, doc.lastAutoTable.finalY + 40);
 
+    // Footer
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(10);
     doc.text(
-      `Exhaust Compliance: ${proposedExhaustCompliance}% (${getStatusText(proposedExhaustCompliance)})`,
-      14,
-      doc.lastAutoTable.finalY + 10
-    );
-    doc.text(
-      `Intake Compliance: ${proposedIntakeCompliance}% (${getStatusText(proposedIntakeCompliance)})`,
-      14,
-      doc.lastAutoTable.finalY + 20
-    );
-
-    // Footer with recommendation
-    doc.setFontSize(12);
-    doc.text(
-      'Balanced intake and exhaust ventilation prevents moisture buildup in winter and reduces heat in summer, extending shingle life.',
-      14,
-      doc.lastAutoTable.finalY + 40
+      'Balanced intake and exhaust ventilation prevents moisture buildup in winter and reduces heat in summer to extend the life of your roof.',
+      10,
+      doc.lastAutoTable.finalY + 55,
+      { maxWidth: 190 }
     );
 
     // Save the PDF
-    doc.save('Ventilation_Report.pdf');
+    doc.save('VentScore_Report.pdf');
   };
 
-  const getStatusText = (compliance: number) => (compliance >= 100 ? 'Pass' : 'Fail');
-
-  return <button onClick={generatePDF}>Download PDF Report</button>;
+  return (
+    <button
+      onClick={generatePDF}
+      className="mt-8 w-full bg-blue-600 text-white py-3 px-6 rounded-lg text-lg font-medium hover:bg-blue-700 transition"
+    >
+      Download PDF Report
+    </button>
+  );
 };
 
 export default ReportDownload;

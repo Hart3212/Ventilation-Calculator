@@ -64,8 +64,8 @@ const ReportDownload: React.FC<ReportDownloadProps> = ({
     });
 
     // Get the last table’s position
-    const lastTable = doc.getLastAutoTable();
-    yPosition = lastTable ? lastTable.finalY : yPosition + 20;
+    const lastTable = (doc as any).getLastAutoTable?.();
+    yPosition = lastTable?.finalY || yPosition + 20;
 
     // Add Current NFA Details
     doc.text(`Required NFA: ${requiredNFA.toFixed(2)} sq inches`, 10, yPosition + 10);

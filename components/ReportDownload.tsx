@@ -91,8 +91,7 @@ const ReportDownload: React.FC<ReportDownloadProps> = ({
     });
 
     // Add Proposed NFA Details
-    const lastTable = (doc as any).getLastAutoTable?.();
-    yPosition = lastTable?.finalY || yPosition + 70;
+    yPosition = (doc as any).getLastAutoTable?.()?.finalY || yPosition + 70;
     doc.text(`Proposed Exhaust NFA: ${proposedExhaustNFA.toFixed(2)} sq inches`, 10, yPosition + 10);
     doc.text(`Proposed Intake NFA: ${proposedIntakeNFA.toFixed(2)} sq inches`, 10, yPosition + 20);
 

@@ -1,6 +1,8 @@
 import React from 'react';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
+
+jsPDF.prototype.autoTable = autoTable;
 
 interface ReportDownloadProps {
   customerAddress: string;

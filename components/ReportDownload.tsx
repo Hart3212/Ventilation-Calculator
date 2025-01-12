@@ -22,10 +22,10 @@ autoTable(doc, {
 
 interface ReportDownloadProps {
   customerAddress: string;
-  currentVentilation: any[];
+  currentVentilation: { ventType: string; quantity: number }[];
   intakeCompliance: number | null;
   exhaustCompliance: number | null;
-  proposedVentilation: any[];
+  proposedVentilation: { ventType: string; quantity: number }[];
   proposedIntakeCompliance: number | null;
   proposedExhaustCompliance: number | null;
   requiredNFA: number | null;
@@ -94,9 +94,9 @@ const ReportDownload: React.FC<ReportDownloadProps> = ({
     doc.text('Proposed Ventilation System', 10, doc.lastAutoTable.finalY + 65);
     doc.setFont('helvetica', 'normal');
     doc.autoTable({
-      startY: doc.lastAutoTable.finalY + 70,
+      startY: 20,
       head: [['Vent Type', 'Quantity']],
-      body: proposedVentilation.map((vent) => [vent.ventType, vent.quantity]),
+      body: props.currentVentilation.map((vent) => [vent.ventType, vent.quantity]),
     });
     doc.text(`Proposed Exhaust NFA: ${proposedExhaustNFA?.toFixed(2)} square inches`, 10, doc.lastAutoTable.finalY + 10);
     doc.text(`Proposed Intake NFA: ${proposedIntakeNFA?.toFixed(2)} square inches`, 10, doc.lastAutoTable.finalY + 20);

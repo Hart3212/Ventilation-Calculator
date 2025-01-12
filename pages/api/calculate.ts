@@ -1,4 +1,4 @@
-import type { NextApiRequest, import { NextApiRequest, NextApiResponse } from 'next';
+import { NextApiRequest, NextApiResponse } from 'next';
 
 const ventNFAValues: Record<string, number> = {
   'Ridge Vent': 18,

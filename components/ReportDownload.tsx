@@ -3,9 +3,21 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
 const doc = new jsPDF();
+
+// Current Ventilation System Table
+doc.text('Current Ventilation System', 10, 10);
 autoTable(doc, {
-  head: [['Column 1', 'Column 2']],
-  body: [['Data 1', 'Data 2']],
+  startY: 20,
+  head: [['Vent Type', 'Quantity']],
+  body: currentVentilation.map((vent) => [vent.ventType, vent.quantity]),
+});
+
+// Proposed Ventilation System Table
+doc.text('Proposed Ventilation System', 10, doc.lastAutoTable.finalY + 10);
+autoTable(doc, {
+  startY: doc.lastAutoTable.finalY + 20,
+  head: [['Vent Type', 'Quantity']],
+  body: proposedVentilation.map((vent) => [vent.ventType, vent.quantity]),
 });
 
 interface ReportDownloadProps {

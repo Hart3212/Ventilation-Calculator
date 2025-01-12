@@ -2,24 +2,6 @@ import React from 'react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
-const doc = new jsPDF();
-
-// Current Ventilation System Table
-doc.text('Current Ventilation System', 10, 10);
-autoTable(doc, {
-  startY: 20,
-  head: [['Vent Type', 'Quantity']],
-  body: currentVentilation.map((vent) => [vent.ventType, vent.quantity]),
-});
-
-// Proposed Ventilation System Table
-doc.text('Proposed Ventilation System', 10, doc.lastAutoTable.finalY + 10);
-autoTable(doc, {
-  startY: doc.lastAutoTable.finalY + 20,
-  head: [['Vent Type', 'Quantity']],
-  body: proposedVentilation.map((vent) => [vent.ventType, vent.quantity]),
-});
-
 interface ReportDownloadProps {
   customerAddress: string;
   currentVentilation: { ventType: string; quantity: number }[];
@@ -37,10 +19,10 @@ interface ReportDownloadProps {
 
 const ReportDownload: React.FC<ReportDownloadProps> = ({
   customerAddress,
-  currentVentilation,
+  currentVentilation = [],
   intakeCompliance,
   exhaustCompliance,
-  proposedVentilation,
+  proposedVentilation = [],
   proposedIntakeCompliance,
   proposedExhaustCompliance,
   requiredNFA,
@@ -49,9 +31,11 @@ const ReportDownload: React.FC<ReportDownloadProps> = ({
   proposedIntakeNFA,
   proposedExhaustNFA,
 }) => {
+  // Helper functions to determine status color and text
   const getStatusColor = (compliance: number) => (compliance >= 100 ? '#28a745' : '#dc3545');
   const getStatusText = (compliance: number) => (compliance >= 100 ? 'Pass' : 'Fail');
 
+  // Function to generate the PDF
   const generatePDF = () => {
     const doc = new jsPDF();
 
@@ -59,7 +43,6 @@ const ReportDownload: React.FC<ReportDownloadProps> = ({
     doc.setFontSize(18);
     doc.text('Ready Roof VentCheck Scorecard', 105, 15, { align: 'center' });
 
-    // Add spacing after title (3 line breaks)
     let yPosition = 45;
 
     // Customer Address
@@ -74,36 +57,46 @@ const ReportDownload: React.FC<ReportDownloadProps> = ({
     doc.setFont('helvetica', 'bold');
     doc.text('Current Ventilation System', 10, yPosition + 15);
     doc.setFont('helvetica', 'normal');
-    doc.autoTable({
+    autoTable(doc, {
       startY: yPosition + 20,
       head: [['Vent Type', 'Quantity']],
       body: currentVentilation.map((vent) => [vent.ventType, vent.quantity]),
     });
-    doc.text(`Required NFA: ${requiredNFA?.toFixed(2)} square inches`, 10, doc.lastAutoTable.finalY + 10);
-    doc.text(`Current Exhaust NFA: ${exhaustNFA?.toFixed(2)} square inches`, 10, doc.lastAutoTable.finalY + 20);
-    doc.text(`Current Intake NFA: ${intakeNFA?.toFixed(2)} square inches`, 10, doc.lastAutoTable.finalY + 30);
-    doc.setTextColor(getStatusColor(exhaustCompliance || 0));
-    doc.text(`Exhaust Compliance: ${exhaustCompliance?.toFixed(2)}% (${getStatusText(exhaustCompliance || 0)})`, 10, doc.lastAutoTable.finalY + 40);
-    doc.setTextColor(getStatusColor(intakeCompliance || 0));
-    doc.text(`Intake Compliance: ${intakeCompliance?.toFixed(2)}% (${getStatusText(intakeCompliance || 0)})`, 10, doc.lastAutoTable.finalY + 50);
+
+    // Add Current NFA Details
+    yPosition = doc.lastAutoTable.finalY || yPosition + 20;
+    doc.text(`Required NFA: ${requiredNFA.toFixed(2)} sq inches`, 10, yPosition + 10);
+    doc.text(`Current Exhaust NFA: ${exhaustNFA.toFixed(2)} sq inches`, 10, yPosition + 20);
+    doc.text(`Current Intake NFA: ${intakeNFA.toFixed(2)} sq inches`, 10, yPosition + 30);
+
+    // Compliance Status
+    doc.setTextColor(getStatusColor(exhaustCompliance));
+    doc.text(`Exhaust Compliance: ${exhaustCompliance.toFixed(2)}% (${getStatusText(exhaustCompliance)})`, 10, yPosition + 40);
+    doc.setTextColor(getStatusColor(intakeCompliance));
+    doc.text(`Intake Compliance: ${intakeCompliance.toFixed(2)}% (${getStatusText(intakeCompliance)})`, 10, yPosition + 50);
 
     // Proposed Ventilation System
     doc.setTextColor(0, 0, 0);
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
-    doc.text('Proposed Ventilation System', 10, doc.lastAutoTable.finalY + 65);
+    doc.text('Proposed Ventilation System', 10, yPosition + 65);
     doc.setFont('helvetica', 'normal');
-    doc.autoTable({
-      startY: 20,
+    autoTable(doc, {
+      startY: yPosition + 70,
       head: [['Vent Type', 'Quantity']],
-      body: props.currentVentilation.map((vent) => [vent.ventType, vent.quantity]),
+      body: proposedVentilation.map((vent) => [vent.ventType, vent.quantity]),
     });
-    doc.text(`Proposed Exhaust NFA: ${proposedExhaustNFA?.toFixed(2)} square inches`, 10, doc.lastAutoTable.finalY + 10);
-    doc.text(`Proposed Intake NFA: ${proposedIntakeNFA?.toFixed(2)} square inches`, 10, doc.lastAutoTable.finalY + 20);
-    doc.setTextColor(getStatusColor(proposedExhaustCompliance || 0));
-    doc.text(`Proposed Exhaust Compliance: ${proposedExhaustCompliance?.toFixed(2)}% (${getStatusText(proposedExhaustCompliance || 0)})`, 10, doc.lastAutoTable.finalY + 30);
-    doc.setTextColor(getStatusColor(proposedIntakeCompliance || 0));
-    doc.text(`Proposed Intake Compliance: ${proposedIntakeCompliance?.toFixed(2)}% (${getStatusText(proposedIntakeCompliance || 0)})`, 10, doc.lastAutoTable.finalY + 40);
+
+    // Add Proposed NFA Details
+    yPosition = doc.lastAutoTable.finalY || yPosition + 70;
+    doc.text(`Proposed Exhaust NFA: ${proposedExhaustNFA.toFixed(2)} sq inches`, 10, yPosition + 10);
+    doc.text(`Proposed Intake NFA: ${proposedIntakeNFA.toFixed(2)} sq inches`, 10, yPosition + 20);
+
+    // Proposed Compliance Status
+    doc.setTextColor(getStatusColor(proposedExhaustCompliance));
+    doc.text(`Proposed Exhaust Compliance: ${proposedExhaustCompliance.toFixed(2)}% (${getStatusText(proposedExhaustCompliance)})`, 10, yPosition + 30);
+    doc.setTextColor(getStatusColor(proposedIntakeCompliance));
+    doc.text(`Proposed Intake Compliance: ${proposedIntakeCompliance.toFixed(2)}% (${getStatusText(proposedIntakeCompliance)})`, 10, yPosition + 40);
 
     // Footer
     doc.setTextColor(0, 0, 0);
@@ -111,7 +104,7 @@ const ReportDownload: React.FC<ReportDownloadProps> = ({
     doc.text(
       'Balanced intake and exhaust ventilation prevents moisture buildup in winter and reduces heat in summer to extend the life of your roof.',
       10,
-      doc.lastAutoTable.finalY + 55,
+      yPosition + 55,
       { maxWidth: 190 }
     );
 

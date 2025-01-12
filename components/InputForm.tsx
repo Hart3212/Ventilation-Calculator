@@ -198,16 +198,16 @@ const InputForm: React.FC = () => {
           <ReportDownload
             customerAddress={customerAddress}
             currentVentilation={ventilation}
-            intakeCompliance={intakeCompliance}
-            exhaustCompliance={exhaustCompliance}
+            intakeCompliance={intakeCompliance ?? 0}
+            exhaustCompliance={exhaustCompliance ?? 0}
             proposedVentilation={proposedVentilation}
-            proposedIntakeCompliance={proposedIntakeCompliance}
-            proposedExhaustCompliance={proposedExhaustCompliance}
-            requiredNFA={requiredNFA}
-            intakeNFA={intakeNFA}
-            exhaustNFA={exhaustNFA}
-            proposedIntakeNFA={proposedIntakeNFA}
-            proposedExhaustNFA={proposedExhaustNFA}
+            proposedIntakeCompliance={proposedIntakeCompliance ?? 0}
+            proposedExhaustCompliance={proposedExhaustCompliance ?? 0}
+            requiredNFA={requiredNFA ?? 0}
+            intakeNFA={intakeNFA ?? 0}
+            exhaustNFA={exhaustNFA ?? 0}
+            proposedIntakeNFA={proposedIntakeNFA ?? 0}
+            proposedExhaustNFA={proposedExhaustNFA ?? 0}
           />
         ) : null}
       </div>

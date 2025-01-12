@@ -66,13 +66,19 @@ const ResultsDisplay: React.FC<ResultsDisplayProps> = ({
       )}
 
       <ReportDownload
-        currentVentilation={currentVentilation}
-        proposedVentilation={proposedVentilation}
-        currentExhaustCompliance={exhaustCompliance}
-        currentIntakeCompliance={intakeCompliance}
-        proposedExhaustCompliance={exhaustCompliance}
-        proposedIntakeCompliance={intakeCompliance}
-      />
+  customerAddress="123 Main St"
+  currentVentilation={currentVentilation}
+  proposedVentilation={proposedVentilation}
+  intakeCompliance={intakeCompliance}
+  exhaustCompliance={exhaustCompliance}
+  proposedIntakeCompliance={intakeCompliance}
+  proposedExhaustCompliance={exhaustCompliance}
+  requiredNFA={squareFootage * 144 / 150}
+  intakeNFA={currentVentilation.reduce((total, vent) => total + (vent.quantity * 18), 0)}
+  exhaustNFA={proposedVentilation.reduce((total, vent) => total + (vent.quantity * 18), 0)}
+  proposedIntakeNFA={proposedVentilation.reduce((total, vent) => total + (vent.quantity * 18), 0)}
+  proposedExhaustNFA={proposedVentilation.reduce((total, vent) => total + (vent.quantity * 18), 0)}
+/>
     </div>
   );
 };

@@ -23,16 +23,16 @@ autoTable(doc, {
 interface ReportDownloadProps {
   customerAddress: string;
   currentVentilation: { ventType: string; quantity: number }[];
-  intakeCompliance: number | null;
-  exhaustCompliance: number | null;
   proposedVentilation: { ventType: string; quantity: number }[];
-  proposedIntakeCompliance: number | null;
-  proposedExhaustCompliance: number | null;
-  requiredNFA: number | null;
-  intakeNFA: number | null;
-  exhaustNFA: number | null;
-  proposedIntakeNFA: number | null;
-  proposedExhaustNFA: number | null;
+  intakeCompliance: number;
+  exhaustCompliance: number;
+  proposedIntakeCompliance: number;
+  proposedExhaustCompliance: number;
+  requiredNFA: number;
+  intakeNFA: number;
+  exhaustNFA: number;
+  proposedIntakeNFA: number;
+  proposedExhaustNFA: number;
 }
 
 const ReportDownload: React.FC<ReportDownloadProps> = ({

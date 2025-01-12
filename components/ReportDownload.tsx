@@ -63,8 +63,11 @@ const ReportDownload: React.FC<ReportDownloadProps> = ({
       body: currentVentilation.map((vent) => [vent.ventType, vent.quantity]),
     });
 
+    // Get the last table’s position
+    const lastTable = doc.getLastAutoTable();
+    yPosition = lastTable ? lastTable.finalY : yPosition + 20;
+
     // Add Current NFA Details
-    yPosition = doc.lastAutoTable.finalY || yPosition + 20;
     doc.text(`Required NFA: ${requiredNFA.toFixed(2)} sq inches`, 10, yPosition + 10);
     doc.text(`Current Exhaust NFA: ${exhaustNFA.toFixed(2)} sq inches`, 10, yPosition + 20);
     doc.text(`Current Intake NFA: ${intakeNFA.toFixed(2)} sq inches`, 10, yPosition + 30);

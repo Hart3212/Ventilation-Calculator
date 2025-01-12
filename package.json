@@ -20,6 +20,7 @@
     "start": "next start"
   },
   "devDependencies": {
+    "eslint": "^8.53.0"
     "@types/react": "19.0.4",
     "typescript": "5.7.3"
   }

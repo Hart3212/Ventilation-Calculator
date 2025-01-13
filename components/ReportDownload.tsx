@@ -1,5 +1,5 @@
 import React from 'react';
-import jsPDF from 'jspdf';
+import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
 interface ReportDownloadProps {
@@ -31,11 +31,6 @@ const ReportDownload: React.FC<ReportDownloadProps> = ({
   proposedIntakeNFA,
   proposedExhaustNFA,
 }) => {
-  // Helper functions to determine status color and text
-  const getStatusColor = (compliance: number) => (compliance >= 100 ? '#28a745' : '#dc3545');
-  const getStatusText = (compliance: number) => (compliance >= 100 ? 'Pass' : 'Fail');
-
-  // Function to generate the PDF
   const generatePDF = () => {
     const doc = new jsPDF();
 
@@ -63,22 +58,19 @@ const ReportDownload: React.FC<ReportDownloadProps> = ({
       body: currentVentilation.map((vent) => [vent.ventType, vent.quantity]),
       margin: { top: 20 },
       styles: { fontSize: 12, cellPadding: 6 },
-      headStyles: { fillColor: [0, 0, 0], textColor: [255, 255, 255] },
     });
 
-    // Update yPosition based on the table height
     yPosition = (doc as any).getLastAutoTable().finalY + 10;
 
-    // Add Current NFA Details
     doc.text(`Required NFA: ${requiredNFA.toFixed(2)} sq inches`, 10, yPosition);
     doc.text(`Current Exhaust NFA: ${exhaustNFA.toFixed(2)} sq inches`, 10, yPosition + 10);
     doc.text(`Current Intake NFA: ${intakeNFA.toFixed(2)} sq inches`, 10, yPosition + 20);
 
     // Compliance Status
-    doc.setTextColor(getStatusColor(exhaustCompliance));
-    doc.text(`Exhaust Compliance: ${exhaustCompliance.toFixed(2)}% (${getStatusText(exhaustCompliance)})`, 10, yPosition + 30);
-    doc.setTextColor(getStatusColor(intakeCompliance));
-    doc.text(`Intake Compliance: ${intakeCompliance.toFixed(2)}% (${getStatusText(intakeCompliance)})`, 10, yPosition + 40);
+    doc.setTextColor(exhaustCompliance >= 100 ? '#28a745' : '#dc3545');
+    doc.text(`Exhaust Compliance: ${exhaustCompliance.toFixed(2)}%`, 10, yPosition + 30);
+    doc.setTextColor(intakeCompliance >= 100 ? '#28a745' : '#dc3545');
+    doc.text(`Intake Compliance: ${intakeCompliance.toFixed(2)}%`, 10, yPosition + 40);
 
     // Proposed Ventilation System
     doc.setTextColor(0, 0, 0);
@@ -92,21 +84,17 @@ const ReportDownload: React.FC<ReportDownloadProps> = ({
       body: proposedVentilation.map((vent) => [vent.ventType, vent.quantity]),
       margin: { top: 20 },
       styles: { fontSize: 12, cellPadding: 6 },
-      headStyles: { fillColor: [0, 0, 0], textColor: [255, 255, 255] },
     });
 
-    // Update yPosition based on the second table height
     yPosition = (doc as any).getLastAutoTable().finalY + 10;
 
-    // Add Proposed NFA Details
     doc.text(`Proposed Exhaust NFA: ${proposedExhaustNFA.toFixed(2)} sq inches`, 10, yPosition);
     doc.text(`Proposed Intake NFA: ${proposedIntakeNFA.toFixed(2)} sq inches`, 10, yPosition + 10);
 
-    // Proposed Compliance Status
-    doc.setTextColor(getStatusColor(proposedExhaustCompliance));
-    doc.text(`Proposed Exhaust Compliance: ${proposedExhaustCompliance.toFixed(2)}% (${getStatusText(proposedExhaustCompliance)})`, 10, yPosition + 20);
-    doc.setTextColor(getStatusColor(proposedIntakeCompliance));
-    doc.text(`Proposed Intake Compliance: ${proposedIntakeCompliance.toFixed(2)}% (${getStatusText(proposedIntakeCompliance)})`, 10, yPosition + 30);
+    doc.setTextColor(proposedExhaustCompliance >= 100 ? '#28a745' : '#dc3545');
+    doc.text(`Proposed Exhaust Compliance: ${proposedExhaustCompliance.toFixed(2)}%`, 10, yPosition + 20);
+    doc.setTextColor(proposedIntakeCompliance >= 100 ? '#28a745' : '#dc3545');
+    doc.text(`Proposed Intake Compliance: ${proposedIntakeCompliance.toFixed(2)}%`, 10, yPosition + 30);
 
     // Footer
     doc.setTextColor(0, 0, 0);
@@ -118,7 +106,6 @@ const ReportDownload: React.FC<ReportDownloadProps> = ({
       { maxWidth: 190 }
     );
 
-    // Save the PDF
     doc.save('VentScore_Report.pdf');
   };
 

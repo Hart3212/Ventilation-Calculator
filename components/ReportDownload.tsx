@@ -37,83 +37,86 @@ const ReportDownload: React.FC<ReportDownloadProps> = ({
 
   // Function to generate the PDF
   const generatePDF = () => {
-    const doc = new jsPDF();
+  const doc = new jsPDF();
 
-    // Title
-    doc.setFontSize(18);
-    doc.text('Ready Roof VentCheck Scorecard', 105, 15, { align: 'center' });
+  // Title
+  doc.setFontSize(18);
+  doc.text('Ready Roof VentCheck Scorecard', 105, 15, { align: 'center' });
 
-    let yPosition = 45;
+  let yPosition = 45;
 
-    // Customer Address
-    if (customerAddress) {
-      doc.setFontSize(12);
-      doc.text(`Customer Address: ${customerAddress}`, 10, yPosition);
-      yPosition += 10;
-    }
+  // Customer Address
+  if (customerAddress) {
+    doc.setFontSize(12);
+    doc.text(`Customer Address: ${customerAddress}`, 10, yPosition);
+    yPosition += 10;
+  }
 
-    // Current Ventilation System
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Current Ventilation System', 10, yPosition + 15);
-    doc.setFont('helvetica', 'normal');
-    autoTable(doc, {
-      startY: yPosition + 20,
-      head: [['Vent Type', 'Quantity']],
-      body: currentVentilation.map((vent) => [vent.ventType, vent.quantity]),
-    });
+  // Current Ventilation System
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Current Ventilation System', 10, yPosition + 15);
+  doc.setFont('helvetica', 'normal');
+  autoTable(doc, {
+    startY: yPosition + 20,
+    head: [['Vent Type', 'Quantity']],
+    body: currentVentilation.map((vent) => [vent.ventType, vent.quantity]),
+    margin: { top: 20 },
+  });
 
-    // Get the last table’s position
-    const lastTable = (doc as any).getLastAutoTable?.();
-    yPosition = lastTable?.finalY || yPosition + 20;
+  // Update yPosition based on the table height
+  yPosition = (doc as any).getLastAutoTable().finalY + 10;
 
-    // Add Current NFA Details
-    doc.text(`Required NFA: ${requiredNFA.toFixed(2)} sq inches`, 10, yPosition + 10);
-    doc.text(`Current Exhaust NFA: ${exhaustNFA.toFixed(2)} sq inches`, 10, yPosition + 20);
-    doc.text(`Current Intake NFA: ${intakeNFA.toFixed(2)} sq inches`, 10, yPosition + 30);
+  // Add Current NFA Details
+  doc.text(`Required NFA: ${requiredNFA.toFixed(2)} sq inches`, 10, yPosition);
+  doc.text(`Current Exhaust NFA: ${exhaustNFA.toFixed(2)} sq inches`, 10, yPosition + 10);
+  doc.text(`Current Intake NFA: ${intakeNFA.toFixed(2)} sq inches`, 10, yPosition + 20);
 
-    // Compliance Status
-    doc.setTextColor(getStatusColor(exhaustCompliance));
-    doc.text(`Exhaust Compliance: ${exhaustCompliance.toFixed(2)}% (${getStatusText(exhaustCompliance)})`, 10, yPosition + 40);
-    doc.setTextColor(getStatusColor(intakeCompliance));
-    doc.text(`Intake Compliance: ${intakeCompliance.toFixed(2)}% (${getStatusText(intakeCompliance)})`, 10, yPosition + 50);
+  // Compliance Status
+  doc.setTextColor(getStatusColor(exhaustCompliance));
+  doc.text(`Exhaust Compliance: ${exhaustCompliance.toFixed(2)}% (${getStatusText(exhaustCompliance)})`, 10, yPosition + 30);
+  doc.setTextColor(getStatusColor(intakeCompliance));
+  doc.text(`Intake Compliance: ${intakeCompliance.toFixed(2)}% (${getStatusText(intakeCompliance)})`, 10, yPosition + 40);
 
-    // Proposed Ventilation System
-    doc.setTextColor(0, 0, 0);
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Proposed Ventilation System', 10, yPosition + 65);
-    doc.setFont('helvetica', 'normal');
-    autoTable(doc, {
-      startY: yPosition + 70,
-      head: [['Vent Type', 'Quantity']],
-      body: proposedVentilation.map((vent) => [vent.ventType, vent.quantity]),
-    });
+  // Proposed Ventilation System
+  doc.setTextColor(0, 0, 0);
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Proposed Ventilation System', 10, yPosition + 55);
+  doc.setFont('helvetica', 'normal');
+  autoTable(doc, {
+    startY: yPosition + 60,
+    head: [['Vent Type', 'Quantity']],
+    body: proposedVentilation.map((vent) => [vent.ventType, vent.quantity]),
+    margin: { top: 20 },
+  });
 
-    // Add Proposed NFA Details
-    yPosition = (doc as any).getLastAutoTable?.()?.finalY || yPosition + 70;
-    doc.text(`Proposed Exhaust NFA: ${proposedExhaustNFA.toFixed(2)} sq inches`, 10, yPosition + 10);
-    doc.text(`Proposed Intake NFA: ${proposedIntakeNFA.toFixed(2)} sq inches`, 10, yPosition + 20);
+  // Update yPosition based on the second table height
+  yPosition = (doc as any).getLastAutoTable().finalY + 10;
 
-    // Proposed Compliance Status
-    doc.setTextColor(getStatusColor(proposedExhaustCompliance));
-    doc.text(`Proposed Exhaust Compliance: ${proposedExhaustCompliance.toFixed(2)}% (${getStatusText(proposedExhaustCompliance)})`, 10, yPosition + 30);
-    doc.setTextColor(getStatusColor(proposedIntakeCompliance));
-    doc.text(`Proposed Intake Compliance: ${proposedIntakeCompliance.toFixed(2)}% (${getStatusText(proposedIntakeCompliance)})`, 10, yPosition + 40);
+  // Add Proposed NFA Details
+  doc.text(`Proposed Exhaust NFA: ${proposedExhaustNFA.toFixed(2)} sq inches`, 10, yPosition);
+  doc.text(`Proposed Intake NFA: ${proposedIntakeNFA.toFixed(2)} sq inches`, 10, yPosition + 10);
 
-    // Footer
-    doc.setTextColor(0, 0, 0);
-    doc.setFontSize(10);
-    doc.text(
-      'Balanced intake and exhaust ventilation prevents moisture buildup in winter and reduces heat in summer to extend the life of your roof.',
-      10,
-      yPosition + 55,
-      { maxWidth: 190 }
-    );
+  // Proposed Compliance Status
+  doc.setTextColor(getStatusColor(proposedExhaustCompliance));
+  doc.text(`Proposed Exhaust Compliance: ${proposedExhaustCompliance.toFixed(2)}% (${getStatusText(proposedExhaustCompliance)})`, 10, yPosition + 20);
+  doc.setTextColor(getStatusColor(proposedIntakeCompliance));
+  doc.text(`Proposed Intake Compliance: ${proposedIntakeCompliance.toFixed(2)}% (${getStatusText(proposedIntakeCompliance)})`, 10, yPosition + 30);
 
-    // Save the PDF
-    doc.save('VentScore_Report.pdf');
-  };
+  // Footer
+  doc.setTextColor(0, 0, 0);
+  doc.setFontSize(10);
+  doc.text(
+    'Balanced intake and exhaust ventilation prevents moisture buildup in winter and reduces heat in summer to extend the life of your roof.',
+    10,
+    yPosition + 45,
+    { maxWidth: 190 }
+  );
+
+  // Save the PDF
+  doc.save('VentScore_Report.pdf');
+};
 
   return (
     <button

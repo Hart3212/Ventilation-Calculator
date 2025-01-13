@@ -58,11 +58,13 @@ const ReportDownload: React.FC<ReportDownloadProps> = ({
     doc.text('Current Ventilation System', 10, yPosition + 15);
     doc.setFont('helvetica', 'normal');
     autoTable(doc, {
-      startY: yPosition + 20,
-      head: [['Vent Type', 'Quantity']],
-      body: currentVentilation.map((vent) => [vent.ventType, vent.quantity]),
-      margin: { top: 20 },
-    });
+  startY: yPosition + 20,
+  head: [['Vent Type', 'Quantity']],
+  body: currentVentilation.map((vent) => [vent.ventType, vent.quantity]),
+  margin: { top: 20 },
+  styles: { fontSize: 12, cellPadding: 6 }, // Adjust padding for better spacing
+  headStyles: { fillColor: [0, 0, 0], textColor: [255, 255, 255] }, // Optional styling
+});
 
     // Update yPosition based on the table height
     yPosition = (doc as any).getLastAutoTable().finalY + 10;
@@ -85,11 +87,13 @@ const ReportDownload: React.FC<ReportDownloadProps> = ({
     doc.text('Proposed Ventilation System', 10, yPosition + 55);
     doc.setFont('helvetica', 'normal');
     autoTable(doc, {
-      startY: yPosition + 60,
-      head: [['Vent Type', 'Quantity']],
-      body: proposedVentilation.map((vent) => [vent.ventType, vent.quantity]),
-      margin: { top: 20 },
-    });
+  startY: yPosition + 60,
+  head: [['Vent Type', 'Quantity']],
+  body: proposedVentilation.map((vent) => [vent.ventType, vent.quantity]),
+  margin: { top: 20 },
+  styles: { fontSize: 12, cellPadding: 6 },
+  headStyles: { fillColor: [0, 0, 0], textColor: [255, 255, 255] },
+});
 
     // Update yPosition based on the second table height
     yPosition = (doc as any).getLastAutoTable().finalY + 10;

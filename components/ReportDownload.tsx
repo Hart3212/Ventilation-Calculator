@@ -31,6 +31,7 @@ const ReportDownload: React.FC<ReportDownloadProps> = ({
   proposedIntakeNFA,
   proposedExhaustNFA,
 }) => {
+  // Function to generate the PDF
   const generatePDF = () => {
     const doc = new jsPDF();
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { jsPDF } from 'jspdf';
+import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
 interface ReportDownloadProps {
@@ -31,6 +31,10 @@ const ReportDownload: React.FC<ReportDownloadProps> = ({
   proposedIntakeNFA,
   proposedExhaustNFA,
 }) => {
+  // Helper functions to determine status color and text
+  const getStatusColor = (compliance: number) => (compliance >= 100 ? '#28a745' : '#dc3545');
+  const getStatusText = (compliance: number) => (compliance >= 100 ? 'Pass' : 'Fail');
+
   // Function to generate the PDF
   const generatePDF = () => {
     const doc = new jsPDF();
@@ -59,29 +63,53 @@ const ReportDownload: React.FC<ReportDownloadProps> = ({
       body: currentVentilation.map((vent) => [vent.ventType, vent.quantity]),
     });
 
-    yPosition = (doc as any).getLastAutoTable().finalY + 10;
+    // Get the last table’s position
+    const lastTable = (doc as any).getLastAutoTable?.();
+    yPosition = lastTable?.finalY || yPosition + 20;
 
-    // Current NFA Details
-    doc.text(`Required NFA: ${requiredNFA.toFixed(2)} sq inches`, 10, yPosition);
-    doc.text(`Current Exhaust NFA: ${exhaustNFA.toFixed(2)} sq inches`, 10, yPosition + 10);
-    doc.text(`Current Intake NFA: ${intakeNFA.toFixed(2)} sq inches`, 10, yPosition + 20);
+    // Add Current NFA Details
+    doc.text(`Required NFA: ${requiredNFA.toFixed(2)} sq inches`, 10, yPosition + 10);
+    doc.text(`Current Exhaust NFA: ${exhaustNFA.toFixed(2)} sq inches`, 10, yPosition + 20);
+    doc.text(`Current Intake NFA: ${intakeNFA.toFixed(2)} sq inches`, 10, yPosition + 30);
+
+    // Compliance Status
+    doc.setTextColor(getStatusColor(exhaustCompliance));
+    doc.text(`Exhaust Compliance: ${exhaustCompliance.toFixed(2)}% (${getStatusText(exhaustCompliance)})`, 10, yPosition + 40);
+    doc.setTextColor(getStatusColor(intakeCompliance));
+    doc.text(`Intake Compliance: ${intakeCompliance.toFixed(2)}% (${getStatusText(intakeCompliance)})`, 10, yPosition + 50);
 
     // Proposed Ventilation System
+    doc.setTextColor(0, 0, 0);
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
-    doc.text('Proposed Ventilation System', 10, yPosition + 35);
+    doc.text('Proposed Ventilation System', 10, yPosition + 65);
     doc.setFont('helvetica', 'normal');
     autoTable(doc, {
-      startY: yPosition + 40,
+      startY: yPosition + 70,
       head: [['Vent Type', 'Quantity']],
       body: proposedVentilation.map((vent) => [vent.ventType, vent.quantity]),
     });
 
-    yPosition = (doc as any).getLastAutoTable().finalY + 10;
+    // Add Proposed NFA Details
+    yPosition = (doc as any).getLastAutoTable?.()?.finalY || yPosition + 70;
+    doc.text(`Proposed Exhaust NFA: ${proposedExhaustNFA.toFixed(2)} sq inches`, 10, yPosition + 10);
+    doc.text(`Proposed Intake NFA: ${proposedIntakeNFA.toFixed(2)} sq inches`, 10, yPosition + 20);
 
-    // Proposed NFA Details
-    doc.text(`Proposed Exhaust NFA: ${proposedExhaustNFA.toFixed(2)} sq inches`, 10, yPosition);
-    doc.text(`Proposed Intake NFA: ${proposedIntakeNFA.toFixed(2)} sq inches`, 10, yPosition + 10);
+    // Proposed Compliance Status
+    doc.setTextColor(getStatusColor(proposedExhaustCompliance));
+    doc.text(`Proposed Exhaust Compliance: ${proposedExhaustCompliance.toFixed(2)}% (${getStatusText(proposedExhaustCompliance)})`, 10, yPosition + 30);
+    doc.setTextColor(getStatusColor(proposedIntakeCompliance));
+    doc.text(`Proposed Intake Compliance: ${proposedIntakeCompliance.toFixed(2)}% (${getStatusText(proposedIntakeCompliance)})`, 10, yPosition + 40);
+
+    // Footer
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(10);
+    doc.text(
+      'Balanced intake and exhaust ventilation prevents moisture buildup in winter and reduces heat in summer to extend the life of your roof.',
+      10,
+      yPosition + 55,
+      { maxWidth: 190 }
+    );
 
     // Save the PDF
     doc.save('VentScore_Report.pdf');
